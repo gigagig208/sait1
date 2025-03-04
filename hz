@@ -1,0 +1,188 @@
+Структура проекта:
+Copy
+project/
+│
+├── app.py               # Основной файл Flask-приложения
+├── templates/            # Папка для HTML-шаблонов
+│   └── index.html        # HTML-шаблон, который мы уже создали
+└── requirements.txt      # Файл с зависимостями
+1. Файл app.py
+python
+Copy
+from flask import Flask, render_template, request
+
+app = Flask(__name__)
+
+# Заглушка для модели (в реальности здесь будет вызов Airflow или ML-модели)
+def find_hotel_by_text(user_input):
+    """
+    Функция, которая имитирует поиск гостиницы по тексту.
+    В реальности здесь будет вызов модели или API Airflow.
+    """
+    # Пример данных, которые может вернуть модель
+    hotels = [
+        {
+            "name": "Отель Престиж",
+            "address": "ул. Центральная, 15",
+            "price": 4500,
+            "rating": 4.7,
+            "description": "Комфортабельный отель в центре города с бесплатным Wi-Fi и завтраком."
+        },
+        {
+            "name": "Гостиница Уют",
+            "address": "пр. Ленина, 30",
+            "price": 3200,
+            "rating": 4.2,
+            "description": "Уютная гостиница рядом с парком. Идеально для семейного отдыха."
+        }
+    ]
+
+    # Простейшая логика поиска (например, ищем по ключевым словам)
+    for hotel in hotels:
+        if user_input.lower() in hotel["description"].lower():
+            return hotel
+
+    return None
+
+
+@app.route("/", methods=["GET", "POST"])
+def index():
+    hotel = None
+    if request.method == "POST":
+        # Получаем текст от пользователя
+        user_input = request.form.get("user_input")
+
+        # Ищем гостиницу на основе введенного текста
+        hotel = find_hotel_by_text(user_input)
+
+    # Рендерим HTML-шаблон и передаем результат
+    return render_template("index.html", hotel=hotel)
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
+2. Файл templates/index.html
+Этот файл мы уже создали ранее. Убедись, что он лежит в папке templates. Вот его содержимое для удобства:
+
+html
+Copy
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поиск гостиницы</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        input, textarea {
+            margin-bottom: 20px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .results {
+            margin-top: 20px;
+        }
+        .hotel {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .hotel h3 {
+            margin: 0;
+        }
+        .hotel p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Поиск гостиницы</h1>
+        <form action="/" method="POST">
+            <label for="user_input">Введите описание или запрос:</label>
+            <textarea id="user_input" name="user_input" rows="4" required></textarea>
+
+            <button type="submit">Найти гостиницу</button>
+        </form>
+
+        <div class="results">
+            {% if hotel %}
+                <h2>Результат поиска:</h2>
+                <div class="hotel">
+                    <h3>{{ hotel.name }}</h3>
+                    <p><strong>Адрес:</strong> {{ hotel.address }}</p>
+                    <p><strong>Цена:</strong> {{ hotel.price }} руб./ночь</p>
+                    <p><strong>Рейтинг:</strong> {{ hotel.rating }}</p>
+                    <p><strong>Описание:</strong> {{ hotel.description }}</p>
+                </div>
+            {% else %}
+                <p>Введите запрос для поиска гостиницы.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
+Run HTML
+3. Файл requirements.txt
+Добавь зависимости для Flask:
+
+Copy
+Flask==2.3.2
+Как запустить проект:
+Установи зависимости:
+
+bash
+Copy
+pip install -r requirements.txt
+Запусти Flask-приложение:
+
+bash
+Copy
+python app.py
+Перейди в браузере по адресу: http://127.0.0.1:5000/.
+
+Как это работает:
+Пользователь вводит текст в поле и нажимает кнопку "Найти гостиницу".
+
+Данные отправляются на сервер (методом POST на /).
+
+Сервер вызывает функцию find_hotel_by_text, которая имитирует поиск гостиницы (в реальности здесь будет вызов модели или Airflow).
+
+Результат отображается на странице.
+
+Что можно улучшить:
+Интеграция с Airflow: Замени заглушку find_hotel_by_text на реальный вызов API или модели, развернутой в Airflow.
+
+Обработка ошибок: Добавь обработку ошибок, если модель не вернула результат.
+
+Дополнительные поля: Расширь данные о гостинице, если нужно.
