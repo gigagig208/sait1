@@ -186,3 +186,23 @@ python app.py
 Обработка ошибок: Добавь обработку ошибок, если модель не вернула результат.
 
 Дополнительные поля: Расширь данные о гостинице, если нужно.
+
+
+from flask import Flask, jsonify
+import requests
+
+app = Flask(__name__)
+
+AIRFLOW_API_URL = 'http://your-airflow-server.com/api/v1'
+AIRFLOW_USERNAME = 'your_username'
+AIRFLOW_PASSWORD = 'your_password'
+
+@app.route('/dags')
+def list_dags():
+    response = requests.get(
+        f'{AIRFLOW_API_URL}/dags',
+        auth=(AIRFLOW_USERNAME, AIRFLOW_PASSWORD)
+    return jsonify(response.json())
+
+if __name__ == '__main__':
+    app.run(debug=True)
